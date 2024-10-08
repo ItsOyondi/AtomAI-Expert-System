@@ -19,7 +19,7 @@ openai_api_key = os.getenv('OPENAI_API_KEY')
 
 # Initialize Pinecone and OpenAI clients
 pc = Pinecone(api_key=pinecone_api_key)
-index_name = "document-embeddings-geo"
+index_name = "document-embeddings"
 
 openai.api_key = openai_api_key
 client = openai.OpenAI()
@@ -41,36 +41,24 @@ def encode_documents(documents):
 
 
 
-def insert_batch(batch_embeddings, batch_documents, index, batch_number, batch_size):
-    data = [
-        (f"doc_{batch_number * batch_size + j}", embedding, {"page_name": doc[1], "text": doc[0]})
-        for j, (embedding, doc) in enumerate(zip(batch_embeddings, batch_documents))
-    ]
-    
-    # Check the size of the data
-    data_size = sys.getsizeof(data)
-    print(f"Batch {batch_number + 1}: Size = {data_size} bytes")
-    
-    if data_size > 4194304:  # 4 MB limit
-        print("Warning: This batch exceeds Pinecone's size limit.")
-    
-    # Insert the batch into Pinecone
-    index.upsert(vectors=data)
-
-def insert_into_pinecone(embeddings, documents, index, batch_size=100):
-    with ThreadPoolExecutor() as executor:
-        futures = []
-        for i in range(0, len(embeddings), batch_size):
-            batch_embeddings = embeddings[i:i + batch_size]
-            batch_documents = documents[i:i + batch_size]
-            
-            batch_number = i // batch_size
-            # Submit the batch insertion task to the executor
-            futures.append(executor.submit(insert_batch, batch_embeddings, batch_documents, index, batch_number, batch_size))
+def insert_into_pinecone(embeddings, documents, batch_size=100):
+    for i in range(0, len(embeddings), batch_size):
+        batch_embeddings = embeddings[i:i + batch_size]
+        batch_documents = documents[i:i + batch_size]
         
-        # Ensure all tasks are completed
-        for future in futures:
-            future.result()
+        data = [
+            (f"doc_{i+j}", embedding, {"page_name": doc[1], "text": doc[0]})
+            for j, (embedding, doc) in enumerate(zip(batch_embeddings, batch_documents))
+        ]
+        
+        # Check the size of the data
+        data_size = sys.getsizeof(data)
+        print(f"Batch {i//batch_size + 1}: Size = {data_size} bytes")
+        
+        if data_size > 4194304:  # 4 MB limit
+            print("Warning: This batch exceeds Pinecone's size limit.")
+        
+        index.upsert(vectors=data)
 
 
 def generate_answer(query, generator):
