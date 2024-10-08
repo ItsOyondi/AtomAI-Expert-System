@@ -1,6 +1,6 @@
 # AtomAI-Expert-System
 This is a collaborative project to build an education AI expert system for question aswering from pdf.
-## Members:
+## Collaborators:
 __Josephat Oyondi - Team Lead @ItsOyondi__, 
 __Jean Baptiste @Baptiste1991__,
 __Elie Niringiyimana : @niringiyimanaelie__
