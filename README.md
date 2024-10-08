@@ -12,7 +12,7 @@ __Elie Niringiyimana : @niringiyimanaelie__
 The Chatbot can efficiently answer questions and provide the sources from where the answer was extracted from. 
 
 We used Pinecone to create our Vector Database and OpenAI for Text and Image Embedding.
-The data was extracted from pdf documents processed the leading computer vision model (YOLOV7). 
+The data was extracted from pdf documents processed the leading computer vision model (YOLOV7). We locally deployed the chatbot using Flask API.
 
 ### Future work
 We developed this chatbot to keep a record of the user queries and use them for further improving the knowledge base and make the bot more robust and able to answer all questions in the selected subjects. In the future, we can also improve the model to process multiple subjects spanning the education sector. 
